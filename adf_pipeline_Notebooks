@@ -1,0 +1,215 @@
+{
+    "name": "casestudy_pl",
+    "properties": {
+        "activities": [
+            {
+                "name": "Customer",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Raw",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/CaseStudy/Dimension/Customer Dimension"
+                },
+                "linkedServiceName": {
+                    "referenceName": "la_databricks_cs",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "Product",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Raw",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/CaseStudy/Dimension/Product Dimension"
+                },
+                "linkedServiceName": {
+                    "referenceName": "la_databricks_cs",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "ShipMode",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Raw",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/CaseStudy/Dimension/Ship Dimension"
+                },
+                "linkedServiceName": {
+                    "referenceName": "la_databricks_cs",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "Fact_Sales",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "ShipMode",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Product",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Customer",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/CaseStudy/Fact/Sales Fact"
+                },
+                "linkedServiceName": {
+                    "referenceName": "la_databricks_cs",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "to csv",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Fact_Sales",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/CaseStudy/Convert_to_csv/To_Csv File"
+                },
+                "linkedServiceName": {
+                    "referenceName": "la_databricks_cs",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "Update Config",
+                "type": "DatabricksNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "to csv",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/CaseStudy/Raw/update table Config"
+                },
+                "linkedServiceName": {
+                    "referenceName": "la_databricks_cs",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "Raw",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/CaseStudy/Raw/create_Database_Raw",
+                    "baseParameters": {
+                        "p_file_date": {
+                            "value": "@pipeline().parameters.file_date",
+                            "type": "Expression"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "la_databricks_cs",
+                    "type": "LinkedServiceReference"
+                }
+            }
+        ],
+        "parameters": {
+            "file_date": {
+                "type": "string"
+            }
+        },
+        "annotations": [],
+        "lastPublishTime": "2025-01-31T11:57:29Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}
